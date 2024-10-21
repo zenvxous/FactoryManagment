@@ -1,0 +1,13 @@
+﻿services:
+  postgres:
+    image: postgres:latest
+    container_name: FactoryManagment_Db
+    environment:
+      POSTGRES_DB: "factory_managment"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database:/var/lib/postgresql
+      
