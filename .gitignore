@@ -1,0 +1,10 @@
+FactoryManagment.API/bin
+FactoryManagment.API/obj
+FactoryManagment.Application/bin
+FactoryManagment.Application/obj
+FactoryManagment.Domain/bin
+FactoryManagment.Domain/obj
+FactoryManagment.Infrastructure/bin
+FactoryManagment.Infrastructure/obj
+FactoryManagment.Persistence/bin
+FactoryManagment.Persistence/obj
