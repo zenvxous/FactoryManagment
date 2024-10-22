@@ -6,6 +6,7 @@ using FactoryManagment.Domain.Interfaces.Services;
 using FactoryManagment.Infrastructure;
 using FactoryManagment.Persistence;
 using FactoryManagment.Persistence.Repositories;
+using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -42,5 +43,12 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+    HttpOnly = HttpOnlyPolicy.Always,
+    Secure = CookieSecurePolicy.Always
+});
 
 app.Run();
