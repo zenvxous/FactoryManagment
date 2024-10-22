@@ -1,13 +1,33 @@
+using FactoryManagment.API.Extensions;
+using FactoryManagment.Application.Services;
+using FactoryManagment.Domain.Interfaces.Auth;
+using FactoryManagment.Domain.Interfaces.Repositories;
+using FactoryManagment.Domain.Interfaces.Services;
+using FactoryManagment.Infrastructure;
 using FactoryManagment.Persistence;
+using FactoryManagment.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+var configuration = builder.Configuration;
 
-builder.Services.AddControllers();
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+services.AddControllers();
 
-builder.Services.AddDbContext<FactoryDbContext>();
+services.AddApiAuthentication(configuration);
+
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
+
+services.AddDbContext<FactoryDbContext>();
+
+services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 var app = builder.Build();
 

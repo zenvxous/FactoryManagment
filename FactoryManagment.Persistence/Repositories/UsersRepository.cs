@@ -26,6 +26,19 @@ public class UsersRepository : IUsersRepository
             userEntity.HashedPassword,
             userEntity.Email).User;
     }
+
+    public async Task<User?> GetByUsernameAsync(string username)
+    {
+        var userEntity = await _dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+        return userEntity == null ? null : User.Create(
+            userEntity.Id,
+            userEntity.Username,
+            userEntity.HashedPassword,
+            userEntity.Email).User;
+    }
     
     public async Task CreateAsync(User user)
     {
