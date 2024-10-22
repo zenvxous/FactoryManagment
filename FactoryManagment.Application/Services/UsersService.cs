@@ -30,8 +30,19 @@ public class UsersService : IUsersService
         return true;
     }
 
+    private async Task<bool> CheckUserExists(string username, string email)
+    {
+        if(await _usersRepository.GetByEmailAsync(email) == null || await _usersRepository.GetByUsernameAsync(username) == null)
+            return false;
+        
+        return true;
+    }
+
     public async Task<string> RegisterUser(string username, string password, string email)
     {
+        if(await CheckUserExists(username, email))
+            return "User already exists";
+        
         var hashedPassword = _passwordHasher.HashPassword(password);
         
         var (error, user) = User.Create(Guid.NewGuid(), username, hashedPassword, email);
@@ -39,7 +50,7 @@ public class UsersService : IUsersService
         if (!string.IsNullOrEmpty(error))
             return error;
 
-        await _usersRepository.CreateAsync(user);
+        await _usersRepository.CreateAsync(user!);
         
         return string.Empty;
     }

@@ -27,7 +27,7 @@ public static class ApiExtensions
                 {
                     OnMessageReceived = context =>
                     {
-                        context.Token = context.Request.Cookies["token"];
+                        context.Token = context.Request.Cookies["Token"];
                         return Task.CompletedTask;
                     }
                 };

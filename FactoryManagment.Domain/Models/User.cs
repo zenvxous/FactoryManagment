@@ -19,9 +19,12 @@ public class User
     
     public string Email { get; private set; }
 
-    public static (string Error, User User) Create(Guid id, string username, string hashedPassword, string email)
+    public static (string Error, User? User) Create(Guid id, string username, string hashedPassword, string email)
     {
-        var error = UsersValidator.Validate(username, hashedPassword);
+        var error = UsersValidator.Validate(username, email);
+        
+        if (error != string.Empty)
+            return (error, null);
         
         var user = new User(id, username, hashedPassword, email);
         
