@@ -7,7 +7,7 @@ public static class WorkersValidator
     private const string EMAIL_PATTERN = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
     private const string PHONE_PATTERN = @"^\+375\d{9}$";
 
-    public static string Validate(string firstName, string lastName, string email, string phoneNumber, DateTime dateOfBirth)
+    public static string Validate(string firstName, string lastName, string email, string phoneNumber, DateTimeOffset dateOfBirth)
     {
         if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(email))
             return "All fields must be filled!";
@@ -42,10 +42,10 @@ public static class WorkersValidator
         return Regex.IsMatch(phoneNumber, PHONE_PATTERN);
     }
 
-    private static bool IsAgeValid(DateTime dateOfBirth)
+    private static bool IsAgeValid(DateTimeOffset dateOfBirth)
     {
-        var age = DateTime.Now.Year - dateOfBirth.Year;
-        if (DateTime.Now.DayOfYear < dateOfBirth.DayOfYear)
+        var age = DateTimeOffset.Now.Year - dateOfBirth.Year;
+        if (DateTimeOffset.Now.DayOfYear < dateOfBirth.DayOfYear)
             age++;
         
         return age >= 18;

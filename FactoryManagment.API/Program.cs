@@ -1,5 +1,7 @@
 using FactoryManagment.API.Extensions;
+using FactoryManagment.Application;
 using FactoryManagment.Application.Services;
+using FactoryManagment.Domain.Interfaces;
 using FactoryManagment.Domain.Interfaces.Auth;
 using FactoryManagment.Domain.Interfaces.Repositories;
 using FactoryManagment.Domain.Interfaces.Services;
@@ -22,13 +24,19 @@ services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
 services.AddDbContext<FactoryDbContext>();
+services.AddDbContext<LogsDbContext>();
 
 services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<IUsersRepository, UsersRepository>();
-builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<IJwtProvider, JwtProvider>();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+services.AddScoped<IWorkersRepository, WorkersRepository>();
+services.AddScoped<IWorkersService, WorkersService>();
+services.AddScoped<IUsersRepository, UsersRepository>();
+services.AddScoped<IUsersService, UsersService>();
+services.AddScoped<IJwtProvider, JwtProvider>();
+services.AddScoped<IPasswordHasher, PasswordHasher>();
+services.AddScoped<IWorkerRequestIdentifier, WorkerRequestIdentifier>();
+services.AddScoped<ILogsRepository, LogsRepository>();
 
 var app = builder.Build();
 

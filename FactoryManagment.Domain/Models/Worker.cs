@@ -7,7 +7,7 @@ public class Worker
 {
     private const string EMAIL_PATTERN = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
     
-    private Worker(Guid id, string firstName, string lastName, string email, string phoneNumber, DateTime dateOfBirth, Jobs job)
+    private Worker(Guid id, string firstName, string lastName, string email, string phoneNumber, DateTimeOffset dateOfBirth, Jobs job)
     {
         Id = id;
         FirstName = firstName;
@@ -28,11 +28,11 @@ public class Worker
     
     public string PhoneNumber { get; private set; }
     
-    public DateTime DateOfBirth { get; private set; }
+    public DateTimeOffset DateOfBirth { get; private set; }
     
     public Jobs Job { get; private set; }
 
-    public static (string Error, Worker Worker) Create(Guid id, string firstName, string lastName, string email, string phoneNumber ,DateTime dateOfBirth, Jobs job)
+    public static (string Error, Worker Worker) Create(Guid id, string firstName, string lastName, string email, string phoneNumber ,DateTimeOffset dateOfBirth, Jobs job)
     {
         var error = WorkersValidator.Validate(firstName, lastName, email, phoneNumber, dateOfBirth);
         

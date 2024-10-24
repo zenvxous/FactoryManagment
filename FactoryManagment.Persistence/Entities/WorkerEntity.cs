@@ -14,7 +14,7 @@ public class WorkerEntity
     
     public string PhoneNumber { get; set; } = string.Empty;
     
-    public DateTime DateOfBirth { get;  set; }
+    public DateTimeOffset DateOfBirth { get;  set; }
     
     public Jobs Job { get; set; }
 }

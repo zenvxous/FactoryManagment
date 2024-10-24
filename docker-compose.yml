@@ -1,4 +1,15 @@
 ﻿services:
+  logs:
+    image: postgres:latest
+    container_name: LogsFactoryManagment_Db
+    environment:
+      POSTGRES_DB: "logs_factory_managment"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./database:/var/lib/postgresql
   postgres:
     image: postgres:latest
     container_name: FactoryManagment_Db
@@ -10,4 +21,5 @@
       - "5432:5432"
     volumes:
       - ./database:/var/lib/postgresql
+    
       
