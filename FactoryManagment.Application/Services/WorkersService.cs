@@ -5,6 +5,7 @@ using FactoryManagment.Domain.Interfaces.Repositories;
 using FactoryManagment.Domain.Interfaces.Services;
 using FactoryManagment.Domain.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FactoryManagment.Application.Services;
 
@@ -14,17 +15,20 @@ public class WorkersService : IWorkersService
     private readonly IUsersRepository _usersRepository;
     private readonly ILogsRepository _logsRepository;
     private readonly IWorkerRequestIdentifier _workerRequestIdentifier;
+    private readonly IMemoryCache _memoryCache;
 
     public WorkersService(
         IWorkersRepository workersRepository,
         IUsersRepository usersRepository,
         ILogsRepository logsRepository,
-        IWorkerRequestIdentifier workerRequestIdentifier)
+        IWorkerRequestIdentifier workerRequestIdentifier,
+        IMemoryCache memoryCache)
     {
         _workersRepository = workersRepository;
         _usersRepository = usersRepository;
         _logsRepository = logsRepository;
         _workerRequestIdentifier = workerRequestIdentifier;
+        _memoryCache = memoryCache;
     }
 
     private async Task<User> GetCurrentUser(HttpContext context)
@@ -38,13 +42,23 @@ public class WorkersService : IWorkersService
         
         return (await _usersRepository.GetByIdAsync(Guid.Parse(strId)))!;
     }
-    
+
     public async Task<List<Worker>> GetAllWorkersAsync(HttpContext context)
     {
         var user = await GetCurrentUser(context);
         await _logsRepository.CreateAsync(user, Actions.Check);
 
-        return await _workersRepository.GetAllAsync();
+        if (_memoryCache.TryGetValue("AllWorkers", out List<Worker>? workers))
+            return workers!;
+        
+        workers = await _workersRepository.GetAllAsync();
+
+        var cacheEntryOptions = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+            
+        _memoryCache.Set("AllWorkers", workers, cacheEntryOptions);
+
+        return workers;
     }
 
     public async Task<List<Worker>> GetAllByJobWorkersAsync(HttpContext context, Jobs job)
@@ -52,7 +66,18 @@ public class WorkersService : IWorkersService
         var user = await GetCurrentUser(context);
         await _logsRepository.CreateAsync(user, Actions.Check);
         
-        return await _workersRepository.GetAllByJobAsync(job);
+        var cacheKey = $"WorkersByJob_{job}";
+        if (_memoryCache.TryGetValue(cacheKey, out List<Worker>? workers))
+            return workers!;
+        
+        workers = await _workersRepository.GetAllByJobAsync(job);
+        
+        var cacheEntryOptions = new MemoryCacheEntryOptions()
+            .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+        
+        _memoryCache.Set(cacheKey, workers, cacheEntryOptions);
+
+        return workers;
     }
 
     public async Task<Worker?> GetWorkerByIdentifierAsync(HttpContext context, string workerIdentifier)
@@ -60,19 +85,26 @@ public class WorkersService : IWorkersService
         var user = await GetCurrentUser(context);
         await _logsRepository.CreateAsync(user, Actions.Check);
 
-        Worker? worker;
+        var cacheKey = $"Worker_{workerIdentifier}";
+
+        if (_memoryCache.TryGetValue(cacheKey, out Worker? worker)) 
+            return worker;
+        
         switch (_workerRequestIdentifier.Identify(workerIdentifier))
         {
-            case(WorkerRequestTypes.Email):
+            case WorkerRequestTypes.Email:
                 worker = await _workersRepository.GetByEmailAsync(workerIdentifier);
                 break;
-            case(WorkerRequestTypes.Phone):
+            case WorkerRequestTypes.Phone:
                 worker = await _workersRepository.GetByPhoneNumberAsync(workerIdentifier);
                 break;
             default:
                 worker = null;
                 break;
         }
+            
+        if (worker != null)
+            _memoryCache.Set(cacheKey, worker, TimeSpan.FromMinutes(5));
 
         return worker;
     }
@@ -83,12 +115,15 @@ public class WorkersService : IWorkersService
         await _logsRepository.CreateAsync(user, Actions.Create);
 
         if (await _workersRepository.GetByEmailAsync(worker.Email) != null)
-            return "Worker with this email already exists";
+            return "Worker with this email already exists!";
         
         if (await _workersRepository.GetByPhoneNumberAsync(worker.PhoneNumber) != null)
-            return "Worker with this phone number already exists";
+            return "Worker with this phone number already exists!";
         
         await _workersRepository.CreateAsync(worker);
+        
+        _memoryCache.Remove("AllWorkers");
+        _memoryCache.Remove($"WorkersByJob_{worker.Job}");
         
         return string.Empty;
     }
@@ -99,6 +134,9 @@ public class WorkersService : IWorkersService
         await _logsRepository.CreateAsync(user, Actions.Update);
         
         await _workersRepository.UpdateAsync(id, email, phoneNumber, job);
+        
+        _memoryCache.Remove("AllWorkers");
+        _memoryCache.Remove($"WorkersByJob_{job}");
     }
 
     public async Task DeleteWorkerAsync(HttpContext context, Guid id)
@@ -107,6 +145,7 @@ public class WorkersService : IWorkersService
         await _logsRepository.CreateAsync(user, Actions.Delete);
         
         await _workersRepository.DeleteAsync(id);
+        
+        _memoryCache.Remove("AllWorkers");
     }
-    
 }

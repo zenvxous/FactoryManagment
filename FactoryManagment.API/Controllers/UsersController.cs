@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FactoryManagment.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

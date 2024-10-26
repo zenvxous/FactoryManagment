@@ -28,6 +28,7 @@ services.AddDbContext<LogsDbContext>();
 
 services.AddHttpContextAccessor();
 
+services.AddMemoryCache();
 
 services.AddScoped<IWorkersRepository, WorkersRepository>();
 services.AddScoped<IWorkersService, WorkersService>();
@@ -47,6 +48,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// app.UseDefaultFiles();
+// app.UseStaticFiles();
 
 app.UseAuthorization();
 

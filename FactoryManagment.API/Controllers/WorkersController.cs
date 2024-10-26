@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FactoryManagment.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class WorkersController : ControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -30,7 +30,7 @@ public class WorkersController : ControllerBase
             w.LastName,
             w.Email,
             w.PhoneNumber,
-            w.DateOfBirth.UtcDateTime,
+            w.DateOfBirth.UtcDateTime.ToString("dd/MM/yyyy"),
             w.Job.ToString()
         )).ToList();
     }
@@ -61,7 +61,12 @@ public class WorkersController : ControllerBase
         
         var worker = await _workersService.GetWorkerByIdentifierAsync(_httpContextAccessor.HttpContext!, identifier);
         
-        return Ok(worker);
+        if (worker == null)
+            return Ok(worker);
+        
+        var workerResponse = CreateWorkerResponse([worker]);
+        
+        return Ok(workerResponse[0]);
     }
 
     [Authorize]

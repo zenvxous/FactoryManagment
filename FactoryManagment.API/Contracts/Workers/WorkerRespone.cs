@@ -6,5 +6,5 @@ public record WorkerResponse(
     string LastName,
     string Email,
     string PhoneNumber,
-    DateTime DateOfBirth,
+    string DateOfBirth,
     string Job);
