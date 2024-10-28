@@ -128,15 +128,25 @@ public class WorkersService : IWorkersService
         return string.Empty;
     }
 
-    public async Task UpdateWorkerAsync(HttpContext context, Guid id, string email, string phoneNumber, Jobs job)
+    public async Task<string> UpdateWorkerAsync(HttpContext context, Guid id, string email, string phoneNumber, Jobs job)
     {
+        var worker = await _workersRepository.GetByEmailAsync(email);
+        if (worker != null && worker.Id != id)
+            return "Worker with this email already exists!";
+        worker = await _workersRepository.GetByPhoneNumberAsync(phoneNumber);
+        if (worker != null && worker.Id != id)
+            return "Worker with this phone number already exists!";
+        
         var user = await GetCurrentUser(context);
+        
         await _logsRepository.CreateAsync(user, Actions.Update);
         
         await _workersRepository.UpdateAsync(id, email, phoneNumber, job);
         
         _memoryCache.Remove("AllWorkers");
         _memoryCache.Remove($"WorkersByJob_{job}");
+        
+        return string.Empty;
     }
 
     public async Task DeleteWorkerAsync(HttpContext context, Guid id)

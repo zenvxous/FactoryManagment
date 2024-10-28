@@ -107,10 +107,11 @@ public class WorkersController : ControllerBase
             return BadRequest("Invalid job");
         
         var error = UpdateWorkerRequestValidator.Validate(request.Email, request.PhoneNumber);
+        
+        error = await _workersService.UpdateWorkerAsync(_httpContextAccessor.HttpContext!, request.Id, request.Email, request.PhoneNumber, job);
+        
         if(error != string.Empty)
             return BadRequest(error);
-        
-        await _workersService.UpdateWorkerAsync(_httpContextAccessor.HttpContext!, request.Id, request.Email, request.PhoneNumber, job);
         
         return Ok();
     }
