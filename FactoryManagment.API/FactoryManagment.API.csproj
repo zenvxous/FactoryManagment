@@ -21,4 +21,8 @@
       <ProjectReference Include="..\FactoryManagment.Persistence\FactoryManagment.Persistence.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
 </Project>
